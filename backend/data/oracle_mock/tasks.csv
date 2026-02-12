@@ -1,0 +1,4 @@
+task_type,intensity_scalar
+planting,0.85
+clearing_land,1.15
+material_handling,1.45

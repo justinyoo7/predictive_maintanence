@@ -1,0 +1,17 @@
+region,part_id,on_hand_qty,last_updated
+north,wheel,95,2026-02-11
+north,body,29,2026-02-11
+north,windshield,57,2026-02-11
+north,engine,18,2026-02-11
+south,wheel,202,2026-02-11
+south,body,33,2026-02-11
+south,windshield,73,2026-02-11
+south,engine,33,2026-02-11
+east,wheel,114,2026-02-11
+east,body,35,2026-02-11
+east,windshield,52,2026-02-11
+east,engine,19,2026-02-11
+west,wheel,102,2026-02-11
+west,body,29,2026-02-11
+west,windshield,76,2026-02-11
+west,engine,19,2026-02-11

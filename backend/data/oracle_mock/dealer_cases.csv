@@ -1,0 +1,301 @@
+case_id,dealer_id,asset_id,opened_date,symptom_text,region,severity
+C000001,D005,A00152,2024-10-17,rim impact damage after rough terrain operation,west,2
+C000002,D019,A00159,2024-04-20,uneven wheel wear with repeated air loss,north,2
+C000003,D003,A00207,2025-02-10,rim impact damage after rough terrain operation,south,2
+C000004,D010,A00099,2024-04-21,spider crack pattern after debris strike; intermittent warning lamp observed during startup,north,2
+C000005,D027,A00059,2025-06-17,body support fatigue and visible structural bend,south,3
+C000006,D039,A00002,2024-07-13,spider crack pattern after debris strike,east,4
+C000007,D037,A00139,2024-03-27,smoke from engine bay and reduced acceleration,north,2
+C000008,D035,A00106,2025-05-09,spider crack pattern after debris strike,north,1
+C000009,D012,A00097,2025-08-29,tire puncture and low pressure warning; also noted: smoke from engine bay and reduced acceleration,south,3
+C000010,D036,A00155,2025-01-06,hard starting with rough idle and vibration,south,5
+C000011,D037,A00100,2025-10-26,cracked glass spreading across windshield,south,3
+C000012,D019,A00172,2024-12-17,tire puncture and low pressure warning; operator reported unusual noise after long shift,west,2
+C000013,D035,A00134,2025-08-18,uneven wheel wear with repeated air loss,north,2
+C000014,D032,A00018,2025-01-24,body panel deformation with alignment drift; operator reported unusual noise after long shift,north,1
+C000015,D023,A00165,2025-12-07,engine knocking and power loss under heavy load,east,3
+C000016,D036,A00164,2024-04-06,wheel wobble and traction reduction on turns; general handling issue noticed on uneven ground,west,2
+C000017,D018,A00111,2025-04-29,rim impact damage after rough terrain operation,south,4
+C000018,D012,A00200,2025-11-20,"tire puncture and low pressure warning; minor electrical warning, likely unrelated to primary failure",south,1
+C000019,D033,A00085,2025-10-13,intermittent stalling with low torque output; general handling issue noticed on uneven ground,south,2
+C000020,D026,A00046,2024-05-24,intermittent stalling with low torque output,south,2
+C000021,D027,A00025,2024-03-20,windshield vibration noise and seal gap; also noted: intermittent stalling with low torque output,west,4
+C000022,D025,A00200,2025-05-29,spider crack pattern after debris strike,west,2
+C000023,D038,A00015,2024-08-02,rim impact damage after rough terrain operation; general handling issue noticed on uneven ground,north,1
+C000024,D005,A00219,2024-12-21,body panel deformation with alignment drift; also noted: uneven wheel wear with repeated air loss,north,2
+C000025,D021,A00248,2025-04-08,front glass chips with limited driver visibility; general handling issue noticed on uneven ground,north,2
+C000026,D005,A00078,2025-11-11,hard starting with rough idle and vibration,east,1
+C000027,D026,A00154,2024-07-02,rim impact damage after rough terrain operation,north,3
+C000028,D037,A00157,2025-12-07,uneven wheel wear with repeated air loss,east,3
+C000029,D003,A00235,2025-02-26,engine knocking and power loss under heavy load; also noted: wheel wobble and traction reduction on turns,west,1
+C000030,D020,A00195,2025-05-20,intermittent stalling with low torque output,south,1
+C000031,D019,A00063,2025-01-11,wheel wobble and traction reduction on turns,south,3
+C000032,D008,A00124,2024-03-01,spider crack pattern after debris strike,north,2
+C000033,D039,A00171,2024-08-06,hard starting with rough idle and vibration,north,2
+C000034,D004,A00091,2025-09-14,uneven wheel wear with repeated air loss,west,3
+C000035,D010,A00187,2025-10-09,uneven wheel wear with repeated air loss,north,4
+C000036,D014,A00131,2025-10-21,smoke from engine bay and reduced acceleration,west,2
+C000037,D030,A00199,2024-03-23,tire puncture and low pressure warning,south,3
+C000038,D028,A00022,2024-05-17,windshield vibration noise and seal gap,west,2
+C000039,D006,A00063,2024-11-20,windshield vibration noise and seal gap; also noted: body support fatigue and visible structural bend,west,2
+C000040,D016,A00112,2024-02-23,chassis flex and mounting crack near rear section,east,4
+C000041,D027,A00200,2024-12-24,windshield vibration noise and seal gap,east,2
+C000042,D007,A00172,2024-12-19,tire puncture and low pressure warning; also noted: front glass chips with limited driver visibility,north,1
+C000043,D008,A00051,2024-05-24,hard starting with rough idle and vibration,west,2
+C000044,D024,A00079,2025-05-15,spider crack pattern after debris strike,north,2
+C000045,D020,A00026,2024-05-02,wheel wobble and traction reduction on turns,south,3
+C000046,D023,A00101,2025-03-12,cracked glass spreading across windshield; also noted: chassis flex and mounting crack near rear section,north,3
+C000047,D024,A00095,2025-09-01,rim impact damage after rough terrain operation,north,3
+C000048,D034,A00009,2024-08-19,cracked glass spreading across windshield,south,3
+C000049,D023,A00095,2024-05-08,intermittent stalling with low torque output; operator reported unusual noise after long shift,north,3
+C000050,D023,A00225,2025-11-19,windshield vibration noise and seal gap; general handling issue noticed on uneven ground,east,5
+C000051,D038,A00062,2024-08-05,frame/body damage after impact event; also noted: windshield vibration noise and seal gap,south,2
+C000052,D014,A00159,2025-12-16,intermittent stalling with low torque output,west,3
+C000053,D035,A00182,2025-12-18,tire puncture and low pressure warning,north,2
+C000054,D014,A00212,2025-10-06,wheel wobble and traction reduction on turns; general handling issue noticed on uneven ground,west,4
+C000055,D008,A00139,2024-04-28,wheel wobble and traction reduction on turns,west,2
+C000056,D019,A00168,2025-10-18,engine knocking and power loss under heavy load,south,2
+C000057,D033,A00094,2026-01-15,rim impact damage after rough terrain operation,west,3
+C000058,D015,A00006,2025-09-09,front glass chips with limited driver visibility; general handling issue noticed on uneven ground,west,3
+C000059,D024,A00238,2024-05-24,wheel wobble and traction reduction on turns,north,4
+C000060,D016,A00196,2025-07-13,wheel wobble and traction reduction on turns,south,3
+C000061,D012,A00123,2025-07-09,uneven wheel wear with repeated air loss,east,2
+C000062,D039,A00076,2024-06-02,uneven wheel wear with repeated air loss,east,3
+C000063,D023,A00139,2025-10-03,body panel deformation with alignment drift; general handling issue noticed on uneven ground,north,1
+C000064,D027,A00119,2024-11-09,wheel wobble and traction reduction on turns,west,2
+C000065,D008,A00113,2025-08-19,tire puncture and low pressure warning,west,2
+C000066,D026,A00033,2025-03-15,body panel deformation with alignment drift; also noted: engine knocking and power loss under heavy load,south,3
+C000067,D035,A00140,2025-04-05,cracked glass spreading across windshield,north,2
+C000068,D034,A00037,2025-05-05,windshield vibration noise and seal gap,west,4
+C000069,D037,A00204,2026-01-26,frame/body damage after impact event,west,3
+C000070,D008,A00046,2024-04-09,windshield vibration noise and seal gap,east,2
+C000071,D016,A00053,2025-07-24,hard starting with rough idle and vibration,east,4
+C000072,D031,A00104,2024-06-02,uneven wheel wear with repeated air loss,south,2
+C000073,D004,A00103,2025-12-23,body support fatigue and visible structural bend,west,5
+C000074,D029,A00084,2025-08-13,rim impact damage after rough terrain operation,north,2
+C000075,D006,A00214,2025-07-01,engine knocking and power loss under heavy load,west,4
+C000076,D002,A00235,2025-10-30,intermittent stalling with low torque output,east,2
+C000077,D024,A00053,2025-06-03,rim impact damage after rough terrain operation; also noted: body support fatigue and visible structural bend,west,3
+C000078,D004,A00220,2024-10-13,cracked glass spreading across windshield,north,2
+C000079,D019,A00079,2024-09-18,cracked glass spreading across windshield; operator reported unusual noise after long shift,north,2
+C000080,D012,A00081,2024-04-08,engine knocking and power loss under heavy load; intermittent warning lamp observed during startup,south,4
+C000081,D035,A00086,2024-06-25,rim impact damage after rough terrain operation; also noted: cracked glass spreading across windshield,west,4
+C000082,D018,A00032,2024-09-29,wheel wobble and traction reduction on turns,south,3
+C000083,D015,A00162,2024-07-04,body panel deformation with alignment drift,west,2
+C000084,D030,A00020,2024-07-23,frame/body damage after impact event,east,2
+C000085,D028,A00249,2024-11-29,intermittent stalling with low torque output,north,3
+C000086,D019,A00200,2025-11-24,body support fatigue and visible structural bend,west,2
+C000087,D030,A00223,2025-05-08,tire puncture and low pressure warning,east,4
+C000088,D010,A00223,2025-07-21,uneven wheel wear with repeated air loss,west,4
+C000089,D035,A00215,2024-05-24,uneven wheel wear with repeated air loss; also noted: engine knocking and power loss under heavy load,north,3
+C000090,D038,A00248,2025-10-01,body panel deformation with alignment drift; operator reported unusual noise after long shift,south,4
+C000091,D018,A00247,2025-10-23,wheel wobble and traction reduction on turns,west,2
+C000092,D010,A00053,2024-12-21,spider crack pattern after debris strike,north,4
+C000093,D013,A00049,2025-06-05,rim impact damage after rough terrain operation,east,2
+C000094,D028,A00212,2025-09-05,cracked glass spreading across windshield; operator reported unusual noise after long shift,east,2
+C000095,D017,A00146,2026-02-09,chassis flex and mounting crack near rear section,west,4
+C000096,D012,A00168,2026-01-20,front glass chips with limited driver visibility,south,4
+C000097,D026,A00036,2024-11-18,frame/body damage after impact event,north,2
+C000098,D034,A00212,2025-10-04,uneven wheel wear with repeated air loss; intermittent warning lamp observed during startup,west,5
+C000099,D036,A00241,2025-09-04,front glass chips with limited driver visibility,south,3
+C000100,D004,A00221,2024-11-24,chassis flex and mounting crack near rear section; general handling issue noticed on uneven ground,south,2
+C000101,D013,A00182,2024-11-29,uneven wheel wear with repeated air loss,east,3
+C000102,D026,A00110,2024-10-10,wheel wobble and traction reduction on turns,south,2
+C000103,D010,A00154,2024-08-24,uneven wheel wear with repeated air loss,north,2
+C000104,D016,A00118,2024-05-31,hard starting with rough idle and vibration; also noted: rim impact damage after rough terrain operation,east,1
+C000105,D023,A00205,2026-01-27,spider crack pattern after debris strike,west,2
+C000106,D005,A00170,2026-01-24,wheel wobble and traction reduction on turns,west,2
+C000107,D037,A00219,2025-09-01,rim impact damage after rough terrain operation; also noted: engine knocking and power loss under heavy load,north,3
+C000108,D033,A00202,2025-05-19,intermittent stalling with low torque output; also noted: uneven wheel wear with repeated air loss,west,4
+C000109,D034,A00147,2025-09-12,frame/body damage after impact event; operator reported unusual noise after long shift,west,3
+C000110,D005,A00155,2024-06-02,uneven wheel wear with repeated air loss,north,3
+C000111,D036,A00164,2024-09-24,tire puncture and low pressure warning; operator reported unusual noise after long shift,north,5
+C000112,D034,A00230,2025-12-18,chassis flex and mounting crack near rear section,west,3
+C000113,D020,A00035,2024-08-18,frame/body damage after impact event,east,2
+C000114,D005,A00049,2025-03-14,rim impact damage after rough terrain operation,south,1
+C000115,D023,A00019,2025-08-18,hard starting with rough idle and vibration,south,4
+C000116,D036,A00072,2025-05-02,tire puncture and low pressure warning,west,2
+C000117,D001,A00165,2025-08-08,uneven wheel wear with repeated air loss; general handling issue noticed on uneven ground,south,3
+C000118,D002,A00112,2024-08-14,intermittent stalling with low torque output,south,2
+C000119,D024,A00045,2025-12-01,smoke from engine bay and reduced acceleration,south,2
+C000120,D012,A00031,2024-08-02,tire puncture and low pressure warning,east,1
+C000121,D009,A00165,2024-05-19,uneven wheel wear with repeated air loss,west,5
+C000122,D023,A00040,2026-02-02,tire puncture and low pressure warning,south,4
+C000123,D036,A00200,2025-06-16,uneven wheel wear with repeated air loss,north,5
+C000124,D021,A00164,2024-09-24,spider crack pattern after debris strike; intermittent warning lamp observed during startup,east,1
+C000125,D015,A00076,2025-05-08,body panel deformation with alignment drift,south,3
+C000126,D023,A00192,2025-08-08,cracked glass spreading across windshield,east,3
+C000127,D037,A00106,2025-03-20,spider crack pattern after debris strike,south,3
+C000128,D021,A00148,2026-01-02,front glass chips with limited driver visibility,east,3
+C000129,D002,A00036,2025-04-25,"engine knocking and power loss under heavy load; minor electrical warning, likely unrelated to primary failure",east,2
+C000130,D034,A00110,2024-05-03,wheel wobble and traction reduction on turns,south,1
+C000131,D020,A00076,2024-12-01,wheel wobble and traction reduction on turns,east,2
+C000132,D031,A00160,2024-08-10,wheel wobble and traction reduction on turns; also noted: cracked glass spreading across windshield,south,4
+C000133,D002,A00163,2025-07-19,cracked glass spreading across windshield; general handling issue noticed on uneven ground,west,2
+C000134,D024,A00183,2025-11-24,tire puncture and low pressure warning,west,2
+C000135,D006,A00067,2025-09-17,engine knocking and power loss under heavy load,north,4
+C000136,D036,A00190,2025-06-04,rim impact damage after rough terrain operation,south,3
+C000137,D025,A00135,2025-02-28,wheel wobble and traction reduction on turns,north,2
+C000138,D012,A00017,2025-01-04,cracked glass spreading across windshield,south,2
+C000139,D029,A00170,2024-12-10,windshield vibration noise and seal gap,south,2
+C000140,D003,A00168,2025-11-13,uneven wheel wear with repeated air loss,west,3
+C000141,D026,A00217,2024-06-22,tire puncture and low pressure warning,north,3
+C000142,D004,A00161,2024-06-26,"uneven wheel wear with repeated air loss; minor electrical warning, likely unrelated to primary failure",west,3
+C000143,D027,A00124,2025-06-09,uneven wheel wear with repeated air loss,west,1
+C000144,D031,A00249,2024-07-07,hard starting with rough idle and vibration,west,3
+C000145,D003,A00184,2024-09-06,body support fatigue and visible structural bend; intermittent warning lamp observed during startup,south,3
+C000146,D038,A00084,2024-05-22,body support fatigue and visible structural bend,north,1
+C000147,D028,A00120,2025-09-09,spider crack pattern after debris strike; also noted: uneven wheel wear with repeated air loss,north,4
+C000148,D006,A00207,2024-11-11,smoke from engine bay and reduced acceleration,west,4
+C000149,D028,A00058,2025-05-03,rim impact damage after rough terrain operation; also noted: intermittent stalling with low torque output,north,4
+C000150,D022,A00170,2025-10-18,wheel wobble and traction reduction on turns,north,4
+C000151,D009,A00224,2024-09-06,engine knocking and power loss under heavy load,north,4
+C000152,D006,A00045,2025-12-26,wheel wobble and traction reduction on turns,south,2
+C000153,D008,A00078,2025-06-19,tire puncture and low pressure warning; operator reported unusual noise after long shift,east,2
+C000154,D008,A00113,2026-02-06,wheel wobble and traction reduction on turns,east,1
+C000155,D001,A00108,2024-10-06,chassis flex and mounting crack near rear section,north,3
+C000156,D021,A00140,2024-04-17,cracked glass spreading across windshield,north,2
+C000157,D036,A00164,2025-07-01,body support fatigue and visible structural bend,south,1
+C000158,D013,A00205,2025-10-01,front glass chips with limited driver visibility,north,2
+C000159,D032,A00126,2024-04-29,hard starting with rough idle and vibration,north,2
+C000160,D029,A00024,2025-07-21,chassis flex and mounting crack near rear section,south,2
+C000161,D017,A00075,2025-11-04,"rim impact damage after rough terrain operation; minor electrical warning, likely unrelated to primary failure",west,2
+C000162,D008,A00132,2025-01-22,smoke from engine bay and reduced acceleration,south,3
+C000163,D029,A00185,2025-02-08,windshield vibration noise and seal gap,north,2
+C000164,D018,A00160,2025-09-12,spider crack pattern after debris strike,north,4
+C000165,D027,A00055,2025-10-22,front glass chips with limited driver visibility; also noted: smoke from engine bay and reduced acceleration,west,3
+C000166,D033,A00058,2024-08-15,chassis flex and mounting crack near rear section; intermittent warning lamp observed during startup,south,2
+C000167,D001,A00005,2025-07-29,hard starting with rough idle and vibration,east,3
+C000168,D022,A00248,2025-11-07,body support fatigue and visible structural bend,east,2
+C000169,D022,A00093,2025-06-09,uneven wheel wear with repeated air loss,east,4
+C000170,D015,A00199,2024-03-22,wheel wobble and traction reduction on turns,north,1
+C000171,D020,A00070,2024-11-24,wheel wobble and traction reduction on turns,north,4
+C000172,D025,A00031,2025-04-28,hard starting with rough idle and vibration,north,2
+C000173,D013,A00150,2025-09-07,uneven wheel wear with repeated air loss; also noted: front glass chips with limited driver visibility,north,2
+C000174,D016,A00016,2024-05-30,uneven wheel wear with repeated air loss,east,1
+C000175,D030,A00203,2024-10-29,wheel wobble and traction reduction on turns,east,2
+C000176,D034,A00068,2024-03-22,chassis flex and mounting crack near rear section,south,2
+C000177,D034,A00194,2024-06-29,tire puncture and low pressure warning,north,3
+C000178,D023,A00226,2025-11-17,smoke from engine bay and reduced acceleration; general handling issue noticed on uneven ground,north,3
+C000179,D004,A00026,2025-04-26,hard starting with rough idle and vibration,north,3
+C000180,D034,A00066,2024-07-10,tire puncture and low pressure warning; also noted: chassis flex and mounting crack near rear section,south,2
+C000181,D012,A00074,2026-02-06,rim impact damage after rough terrain operation,north,4
+C000182,D036,A00048,2026-02-06,uneven wheel wear with repeated air loss,west,2
+C000183,D035,A00065,2024-07-27,tire puncture and low pressure warning,east,3
+C000184,D025,A00193,2024-12-02,uneven wheel wear with repeated air loss,east,4
+C000185,D032,A00020,2024-04-15,body panel deformation with alignment drift; general handling issue noticed on uneven ground,south,2
+C000186,D015,A00021,2024-03-27,uneven wheel wear with repeated air loss,west,3
+C000187,D009,A00132,2025-01-11,engine knocking and power loss under heavy load,south,3
+C000188,D028,A00209,2025-01-26,body panel deformation with alignment drift,north,3
+C000189,D014,A00045,2026-01-13,body panel deformation with alignment drift,south,3
+C000190,D003,A00169,2024-12-18,front glass chips with limited driver visibility,south,2
+C000191,D014,A00226,2025-12-10,wheel wobble and traction reduction on turns,south,4
+C000192,D015,A00241,2024-02-24,rim impact damage after rough terrain operation,north,2
+C000193,D023,A00239,2025-02-10,smoke from engine bay and reduced acceleration,east,4
+C000194,D030,A00228,2024-07-21,front glass chips with limited driver visibility,north,2
+C000195,D011,A00012,2025-04-11,engine knocking and power loss under heavy load,north,4
+C000196,D032,A00001,2025-03-31,tire puncture and low pressure warning,east,3
+C000197,D012,A00197,2024-10-11,tire puncture and low pressure warning,south,3
+C000198,D010,A00074,2025-11-07,wheel wobble and traction reduction on turns,east,3
+C000199,D002,A00210,2025-07-16,wheel wobble and traction reduction on turns; also noted: frame/body damage after impact event,north,3
+C000200,D026,A00195,2024-08-30,uneven wheel wear with repeated air loss,east,4
+C000201,D034,A00226,2024-12-26,rim impact damage after rough terrain operation,east,3
+C000202,D022,A00030,2025-03-03,rim impact damage after rough terrain operation; operator reported unusual noise after long shift,west,3
+C000203,D031,A00241,2025-03-19,uneven wheel wear with repeated air loss,north,1
+C000204,D020,A00008,2025-08-31,body support fatigue and visible structural bend,north,3
+C000205,D017,A00233,2024-07-15,engine knocking and power loss under heavy load,north,3
+C000206,D030,A00012,2025-08-14,engine knocking and power loss under heavy load,west,2
+C000207,D006,A00149,2025-07-18,rim impact damage after rough terrain operation,west,2
+C000208,D039,A00081,2025-05-18,cracked glass spreading across windshield; general handling issue noticed on uneven ground,north,2
+C000209,D016,A00017,2025-02-13,tire puncture and low pressure warning,north,2
+C000210,D015,A00144,2025-11-17,spider crack pattern after debris strike; also noted: frame/body damage after impact event,east,2
+C000211,D020,A00120,2024-10-15,"windshield vibration noise and seal gap; minor electrical warning, likely unrelated to primary failure",north,3
+C000212,D009,A00084,2025-08-11,windshield vibration noise and seal gap,east,3
+C000213,D021,A00137,2024-11-25,hard starting with rough idle and vibration,north,1
+C000214,D007,A00214,2025-04-14,smoke from engine bay and reduced acceleration,north,3
+C000215,D022,A00077,2026-01-17,smoke from engine bay and reduced acceleration,west,3
+C000216,D002,A00133,2025-08-29,tire puncture and low pressure warning,north,3
+C000217,D014,A00244,2024-04-21,chassis flex and mounting crack near rear section,east,4
+C000218,D010,A00040,2024-12-17,body panel deformation with alignment drift,south,3
+C000219,D010,A00075,2024-10-28,frame/body damage after impact event,south,3
+C000220,D013,A00030,2026-01-14,uneven wheel wear with repeated air loss,east,3
+C000221,D006,A00118,2024-10-15,windshield vibration noise and seal gap,north,1
+C000222,D023,A00070,2025-11-03,"tire puncture and low pressure warning; minor electrical warning, likely unrelated to primary failure",south,3
+C000223,D038,A00090,2024-12-13,rim impact damage after rough terrain operation,south,5
+C000224,D020,A00181,2024-05-20,engine knocking and power loss under heavy load,north,3
+C000225,D006,A00200,2025-11-06,cracked glass spreading across windshield,south,4
+C000226,D014,A00196,2024-02-25,smoke from engine bay and reduced acceleration,west,2
+C000227,D029,A00138,2025-05-06,windshield vibration noise and seal gap; intermittent warning lamp observed during startup,south,2
+C000228,D002,A00119,2025-10-14,body support fatigue and visible structural bend; general handling issue noticed on uneven ground,west,3
+C000229,D036,A00080,2025-06-14,intermittent stalling with low torque output,west,4
+C000230,D030,A00167,2025-06-08,rim impact damage after rough terrain operation,south,4
+C000231,D019,A00174,2025-08-29,front glass chips with limited driver visibility,south,3
+C000232,D033,A00105,2025-01-22,engine knocking and power loss under heavy load; operator reported unusual noise after long shift,west,2
+C000233,D037,A00076,2025-09-10,frame/body damage after impact event; operator reported unusual noise after long shift,west,1
+C000234,D024,A00232,2025-11-08,cracked glass spreading across windshield,west,4
+C000235,D038,A00037,2024-11-23,spider crack pattern after debris strike,north,1
+C000236,D039,A00145,2025-04-09,tire puncture and low pressure warning,east,3
+C000237,D003,A00002,2025-11-04,intermittent stalling with low torque output; also noted: body support fatigue and visible structural bend,west,1
+C000238,D039,A00168,2025-06-30,tire puncture and low pressure warning,north,2
+C000239,D009,A00196,2024-04-14,engine knocking and power loss under heavy load,west,2
+C000240,D003,A00210,2024-03-10,spider crack pattern after debris strike,east,3
+C000241,D035,A00090,2024-04-14,"frame/body damage after impact event; minor electrical warning, likely unrelated to primary failure",west,2
+C000242,D024,A00109,2026-01-17,wheel wobble and traction reduction on turns,south,2
+C000243,D025,A00028,2024-03-11,wheel wobble and traction reduction on turns,west,3
+C000244,D007,A00151,2024-05-15,smoke from engine bay and reduced acceleration,north,1
+C000245,D005,A00077,2024-03-23,windshield vibration noise and seal gap; intermittent warning lamp observed during startup,north,1
+C000246,D033,A00091,2025-01-23,windshield vibration noise and seal gap,north,3
+C000247,D032,A00153,2025-12-27,cracked glass spreading across windshield,west,4
+C000248,D028,A00111,2024-03-07,"body panel deformation with alignment drift; minor electrical warning, likely unrelated to primary failure",north,3
+C000249,D004,A00108,2025-07-09,body panel deformation with alignment drift; intermittent warning lamp observed during startup,north,2
+C000250,D036,A00176,2024-05-01,cracked glass spreading across windshield,south,3
+C000251,D005,A00088,2024-03-09,wheel wobble and traction reduction on turns,south,3
+C000252,D014,A00232,2025-12-27,wheel wobble and traction reduction on turns,north,3
+C000253,D001,A00110,2025-02-11,chassis flex and mounting crack near rear section,west,3
+C000254,D009,A00055,2024-06-11,"wheel wobble and traction reduction on turns; minor electrical warning, likely unrelated to primary failure",north,4
+C000255,D008,A00104,2024-03-19,smoke from engine bay and reduced acceleration,west,3
+C000256,D021,A00011,2025-10-25,tire puncture and low pressure warning,west,1
+C000257,D034,A00156,2025-01-13,windshield vibration noise and seal gap,west,4
+C000258,D016,A00159,2024-08-20,uneven wheel wear with repeated air loss,north,2
+C000259,D006,A00161,2025-07-16,rim impact damage after rough terrain operation,south,4
+C000260,D029,A00088,2024-11-11,rim impact damage after rough terrain operation,east,3
+C000261,D007,A00123,2024-10-02,rim impact damage after rough terrain operation,south,3
+C000262,D006,A00141,2024-09-15,cracked glass spreading across windshield,east,3
+C000263,D013,A00044,2025-05-28,intermittent stalling with low torque output,west,5
+C000264,D015,A00160,2025-09-12,spider crack pattern after debris strike,east,1
+C000265,D035,A00116,2025-10-28,engine knocking and power loss under heavy load,west,1
+C000266,D014,A00055,2025-10-04,hard starting with rough idle and vibration; operator reported unusual noise after long shift,south,3
+C000267,D011,A00142,2026-01-09,windshield vibration noise and seal gap,east,3
+C000268,D002,A00085,2024-07-09,hard starting with rough idle and vibration,north,3
+C000269,D018,A00033,2024-03-05,"wheel wobble and traction reduction on turns; minor electrical warning, likely unrelated to primary failure",west,1
+C000270,D011,A00243,2025-01-01,front glass chips with limited driver visibility,south,2
+C000271,D003,A00141,2024-07-13,frame/body damage after impact event,north,3
+C000272,D008,A00145,2025-02-12,uneven wheel wear with repeated air loss,north,2
+C000273,D031,A00013,2024-11-24,rim impact damage after rough terrain operation; intermittent warning lamp observed during startup,east,4
+C000274,D010,A00187,2025-05-10,intermittent stalling with low torque output,east,1
+C000275,D012,A00144,2024-03-10,rim impact damage after rough terrain operation,south,1
+C000276,D007,A00229,2024-07-28,uneven wheel wear with repeated air loss; general handling issue noticed on uneven ground,north,2
+C000277,D009,A00074,2025-01-06,tire puncture and low pressure warning,north,1
+C000278,D026,A00008,2024-11-18,hard starting with rough idle and vibration,south,3
+C000279,D009,A00108,2025-12-19,chassis flex and mounting crack near rear section,north,2
+C000280,D022,A00061,2025-12-21,windshield vibration noise and seal gap,west,2
+C000281,D001,A00026,2025-09-28,rim impact damage after rough terrain operation; operator reported unusual noise after long shift,east,4
+C000282,D005,A00070,2025-12-18,hard starting with rough idle and vibration; also noted: wheel wobble and traction reduction on turns,east,3
+C000283,D037,A00138,2025-03-12,windshield vibration noise and seal gap,east,3
+C000284,D002,A00249,2024-05-27,engine knocking and power loss under heavy load,north,2
+C000285,D017,A00235,2024-11-13,wheel wobble and traction reduction on turns,west,3
+C000286,D002,A00155,2024-11-28,frame/body damage after impact event; also noted: spider crack pattern after debris strike,south,3
+C000287,D009,A00191,2025-05-22,tire puncture and low pressure warning; also noted: body support fatigue and visible structural bend,south,1
+C000288,D006,A00180,2025-07-17,uneven wheel wear with repeated air loss,west,1
+C000289,D021,A00123,2024-07-18,wheel wobble and traction reduction on turns,east,3
+C000290,D017,A00030,2024-12-07,hard starting with rough idle and vibration,east,3
+C000291,D039,A00010,2024-06-07,windshield vibration noise and seal gap,east,2
+C000292,D017,A00139,2025-06-07,rim impact damage after rough terrain operation; general handling issue noticed on uneven ground,south,3
+C000293,D023,A00028,2024-09-02,hard starting with rough idle and vibration,south,2
+C000294,D025,A00027,2026-01-12,body support fatigue and visible structural bend,south,3
+C000295,D017,A00180,2026-01-16,hard starting with rough idle and vibration; operator reported unusual noise after long shift,west,1
+C000296,D015,A00203,2025-06-30,spider crack pattern after debris strike,north,4
+C000297,D037,A00035,2024-04-24,tire puncture and low pressure warning,west,2
+C000298,D010,A00051,2024-05-31,wheel wobble and traction reduction on turns; also noted: body support fatigue and visible structural bend,south,4
+C000299,D001,A00238,2025-11-27,rim impact damage after rough terrain operation,north,3
+C000300,D032,A00201,2025-07-30,tire puncture and low pressure warning,west,2

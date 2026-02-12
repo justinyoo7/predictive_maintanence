@@ -1,0 +1,5 @@
+part_id,part_name,unit_cost,replacement_time_hours,expedite_ship_cost,satisfaction_penalty_per_day
+wheel,Wheel Assembly,320.0,1.5,180.0,140.0
+body,Body Frame,1800.0,6.5,650.0,260.0
+windshield,Windshield Panel,240.0,1.0,120.0,120.0
+engine,Engine Core,5200.0,12.0,950.0,520.0

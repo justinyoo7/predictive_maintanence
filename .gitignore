@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Backend artifacts/data outputs
+backend/artifacts/*.pkl
+backend/artifacts/latest_artifact.json
+
+# Node/Vite
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.db
+node_modules/
+dist/
+.DS_Store
+*.log
+.env.local
+.env.*.local

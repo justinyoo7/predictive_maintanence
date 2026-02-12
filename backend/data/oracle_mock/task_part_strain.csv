@@ -1,0 +1,13 @@
+task_type,part_id,strain_multiplier
+planting,wheel,0.95
+planting,body,0.8
+planting,windshield,0.7
+planting,engine,0.9
+clearing_land,wheel,1.2
+clearing_land,body,1.25
+clearing_land,windshield,0.95
+clearing_land,engine,1.15
+material_handling,wheel,1.35
+material_handling,body,1.1
+material_handling,windshield,1.05
+material_handling,engine,1.3
