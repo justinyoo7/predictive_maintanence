@@ -32,7 +32,6 @@ class RecommendPartsRequest(BaseModel):
         if self.event_id:
             return self
         required = [
-            self.symptom_text,
             self.task_type,
             self.duration_days,
             self.age_days,
@@ -42,7 +41,7 @@ class RecommendPartsRequest(BaseModel):
         ]
         if any(v is None for v in required):
             raise ValueError(
-                "Provide event_id or all direct features for recommendation."
+                "Provide event_id or all planning features for recommendation."
             )
         return self
 
@@ -80,7 +79,6 @@ class SimulateRequest(BaseModel):
         if self.event_id:
             return self
         required = [
-            self.symptom_text,
             self.task_type,
             self.duration_days,
             self.age_days,
@@ -89,7 +87,7 @@ class SimulateRequest(BaseModel):
             self.region,
         ]
         if any(v is None for v in required):
-            raise ValueError("Provide event_id or all direct features for simulation.")
+            raise ValueError("Provide event_id or all planning features for simulation.")
         return self
 
 

@@ -57,6 +57,26 @@ pre {
   margin-bottom: 8px;
 }
 
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.field label,
+.intake-form > label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.inline-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #4b5563;
+}
+
 input,
 textarea,
 button {

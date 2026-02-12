@@ -33,11 +33,12 @@ function App() {
   const [dealerCasesPreview, setDealerCasesPreview] = useState<TablePreview>([])
   const [eventsPreview, setEventsPreview] = useState<TablePreview>([])
   const [recommendations, setRecommendations] = useState<Recommendation[]>([])
+  const [recommendationSource, setRecommendationSource] = useState<string>('none yet')
   const [scenarios, setScenarios] = useState<Scenario[]>([])
   const [summary, setSummary] = useState<SummaryResponse | null>(null)
-  const [eventIdForSim, setEventIdForSim] = useState<string>('E000001')
+  const [eventIdForSim, setEventIdForSim] = useState<string>('')
   const [form, setForm] = useState({
-    symptom_text: 'engine knocking and power loss under heavy load',
+    symptom_text: '',
     task_type: 'material_handling',
     duration_days: 3,
     age_days: 1100,
@@ -66,16 +67,17 @@ function App() {
 
   const handleGenerateData = async () => {
     try {
+      const seed = Math.floor(Date.now() % 1000000000)
       setStatus('Generating demo data...')
       await fetchJson('/generate-demo-data', {
         method: 'POST',
-        body: JSON.stringify({ n_events: 2000, seed: 42, demo_events: 50 }),
+        body: JSON.stringify({ n_events: 2000, seed, demo_events: 50 }),
       })
       const dealer = await fetchJson<{ rows: TablePreview }>('/oracle/table/dealer_cases?limit=5')
       const events = await fetchJson<{ rows: TablePreview }>('/oracle/table/events?limit=5')
       setDealerCasesPreview(dealer.rows)
       setEventsPreview(events.rows)
-      setStatus('Data generated and preview loaded.')
+      setStatus(`Data generated with seed ${seed} and preview loaded.`)
     } catch (error) {
       setStatus(`Generate data failed: ${String(error)}`)
     }
@@ -108,6 +110,7 @@ function App() {
         body: JSON.stringify(payload),
       })
       setRecommendations(result.recommendations)
+      setRecommendationSource('Pre-Job Planning (/recommend-parts)')
       setStatus('Recommendation complete.')
     } catch (error) {
       setStatus(`Recommend failed: ${String(error)}`)
@@ -131,6 +134,11 @@ function App() {
       )
       setScenarios(result.scenarios)
       setRecommendations(result.recommendations)
+      if (eventIdForSim.trim().length > 0) {
+        setRecommendationSource(`Simulation for event_id=${eventIdForSim} (/simulate)`)
+      } else {
+        setRecommendationSource('Simulation from Pre-Job Planning fields (/simulate)')
+      }
       setStatus('Simulation complete.')
     } catch (error) {
       setStatus(`Simulation failed: ${String(error)}`)
@@ -178,53 +186,83 @@ function App() {
       </section>
 
       <section className="panel">
-        <h2>Case Intake</h2>
+        <h2>Pre-Job Planning (Preemptive)</h2>
         <form onSubmit={handleRecommend} className="intake-form">
+          <label htmlFor="symptom_text">Symptom Text (optional)</label>
           <textarea
+            id="symptom_text"
             value={form.symptom_text}
             onChange={(e) => setForm({ ...form, symptom_text: e.target.value })}
+            placeholder="Optional: dealer complaint text"
           />
           <div className="form-row">
-            <input
-              value={form.task_type}
-              onChange={(e) => setForm({ ...form, task_type: e.target.value })}
-              placeholder="task_type"
-            />
-            <input
-              type="number"
-              value={form.duration_days}
-              onChange={(e) => setForm({ ...form, duration_days: Number(e.target.value) })}
-              placeholder="duration_days"
-            />
-            <input
-              type="number"
-              value={form.age_days}
-              onChange={(e) => setForm({ ...form, age_days: Number(e.target.value) })}
-              placeholder="age_days"
-            />
+            <div className="field">
+              <label htmlFor="task_type">Task Type</label>
+              <input
+                id="task_type"
+                value={form.task_type}
+                onChange={(e) => setForm({ ...form, task_type: e.target.value })}
+                placeholder="task_type"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="duration_days">Duration Days</label>
+              <input
+                id="duration_days"
+                type="number"
+                value={form.duration_days}
+                onChange={(e) => setForm({ ...form, duration_days: Number(e.target.value) })}
+                placeholder="duration_days"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="age_days">Age Days</label>
+              <input
+                id="age_days"
+                type="number"
+                value={form.age_days}
+                onChange={(e) => setForm({ ...form, age_days: Number(e.target.value) })}
+                placeholder="age_days"
+              />
+            </div>
           </div>
           <div className="form-row">
-            <input
-              type="number"
-              step="0.01"
-              value={form.avg_load_factor}
-              onChange={(e) => setForm({ ...form, avg_load_factor: Number(e.target.value) })}
-              placeholder="avg_load_factor"
-            />
-            <input
-              type="number"
-              step="0.01"
-              value={form.environment_score}
-              onChange={(e) => setForm({ ...form, environment_score: Number(e.target.value) })}
-              placeholder="environment_score"
-            />
-            <input
-              value={form.region}
-              onChange={(e) => setForm({ ...form, region: e.target.value })}
-              placeholder="region"
-            />
+            <div className="field">
+              <label htmlFor="avg_load_factor">Average Load Factor</label>
+              <input
+                id="avg_load_factor"
+                type="number"
+                step="0.01"
+                value={form.avg_load_factor}
+                onChange={(e) => setForm({ ...form, avg_load_factor: Number(e.target.value) })}
+                placeholder="avg_load_factor"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="environment_score">Environment Score</label>
+              <input
+                id="environment_score"
+                type="number"
+                step="0.01"
+                value={form.environment_score}
+                onChange={(e) => setForm({ ...form, environment_score: Number(e.target.value) })}
+                placeholder="environment_score"
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="region">Region</label>
+              <input
+                id="region"
+                value={form.region}
+                onChange={(e) => setForm({ ...form, region: e.target.value })}
+                placeholder="region"
+              />
+            </div>
           </div>
-          <button type="submit">Recommend Parts</button>
+          <button type="submit">Predict Preemptive Parts</button>
+          <p className="inline-note">
+            Planning results appear in the <strong>Current Recommendations</strong> section below.
+          </p>
         </form>
       </section>
 
@@ -234,10 +272,13 @@ function App() {
           <input
             value={eventIdForSim}
             onChange={(e) => setEventIdForSim(e.target.value)}
-            placeholder="event_id (optional)"
+            placeholder="event_id (optional; leave blank to use planning values)"
           />
           <button onClick={handleSimulate}>Run Simulation</button>
         </div>
+        <p className="inline-note">
+          If `event_id` is filled, simulation uses that event and ignores planning fields.
+        </p>
         {scenarios.map((scenario) => (
           <div key={scenario.scenario} className="bar-row">
             <span>{scenario.scenario}</span>
@@ -260,6 +301,7 @@ function App() {
 
       <section className="panel">
         <h2>Current Recommendations</h2>
+        <p className="inline-note">Source: {recommendationSource}</p>
         <div className="table-like">
           <div className="table-head">
             <span>Part</span>
@@ -269,7 +311,7 @@ function App() {
           {recommendations.map((r) => (
             <div className="table-row" key={r.part_id}>
               <span>{r.part_id}</span>
-              <span>{r.expected_qty.toFixed(2)}</span>
+              <span>{r.expected_qty.toFixed(4)}</span>
               <span>{r.recommended_qty}</span>
             </div>
           ))}
