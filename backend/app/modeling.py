@@ -15,6 +15,7 @@ from scipy.sparse import csr_matrix, hstack
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import PoissonRegressor
+from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import OneHotEncoder
 
 from app.oracle_client import OracleMockClient
@@ -25,6 +26,13 @@ LATEST_POINTER = ARTIFACTS_DIR / "latest_artifact.json"
 
 NUMERIC_COLS = ["duration_days", "age_days", "avg_load_factor", "environment_score"]
 CAT_COLS = ["task_type", "region"]
+
+SYMPTOM_HINTS = {
+    "wheel": ["tire", "wheel", "rim", "pressure", "puncture", "traction"],
+    "body": ["body", "frame", "chassis", "panel", "structural"],
+    "windshield": ["glass", "windshield", "crack", "visibility", "chip"],
+    "engine": ["engine", "knocking", "stall", "torque", "smoke", "power loss"],
+}
 
 
 def _prepare_training_frame(client: OracleMockClient) -> pd.DataFrame:
@@ -85,22 +93,58 @@ def train_and_save_model(
     artifacts_dir.mkdir(parents=True, exist_ok=True)
     frame = _prepare_training_frame(client)
     x_train, vectorizer, encoder = _build_feature_matrix(frame, fit=True)
+    x_train_dense = x_train.toarray()
     part_ids = client.get_table("parts")["part_id"].tolist()
 
     models: Dict[str, object] = {}
     model_types: Dict[str, str] = {}
+    model_mse: Dict[str, Dict[str, float]] = {}
     for part_id in part_ids:
         y = np.maximum(frame[part_id].astype(float).values, 0.0)
-        poisson = PoissonRegressor(alpha=0.0005, max_iter=500)
+        poisson = PoissonRegressor(alpha=0.0001, max_iter=800)
+        poisson_mse = float("inf")
         try:
             poisson.fit(x_train, y)
+            poisson_mse = mean_squared_error(y, np.maximum(0.0, poisson.predict(x_train)))
+        except Exception:
+            poisson = None
+
+        gbr = GradientBoostingRegressor(
+            random_state=42,
+            n_estimators=180,
+            learning_rate=0.05,
+            max_depth=3,
+            subsample=0.9,
+            min_samples_leaf=4,
+        )
+        gbr.fit(x_train_dense, y)
+        gbr_mse = mean_squared_error(y, np.maximum(0.0, gbr.predict(x_train_dense)))
+
+        # Pick the better in-sample fit for this synthetic demo.
+        if poisson is not None and poisson_mse <= gbr_mse * 0.98:
             models[part_id] = poisson
             model_types[part_id] = "poisson"
-        except Exception:
-            gbr = GradientBoostingRegressor(random_state=42)
-            gbr.fit(x_train.toarray(), y)
+        else:
             models[part_id] = gbr
             model_types[part_id] = "gbr"
+        model_mse[part_id] = {
+            "poisson_mse": float(poisson_mse) if np.isfinite(poisson_mse) else -1.0,
+            "gbr_mse": float(gbr_mse),
+        }
+
+    feature_medians = {
+        "duration_days": float(frame["duration_days"].median()),
+        "age_days": float(frame["age_days"].median()),
+        "avg_load_factor": float(frame["avg_load_factor"].median()),
+        "environment_score": float(frame["environment_score"].median()),
+    }
+    tps = client.get_table("task_part_strain")
+    task_part_strain: Dict[str, Dict[str, float]] = {}
+    if not tps.empty:
+        for _, row in tps.iterrows():
+            task = str(row["task_type"])
+            part = str(row["part_id"])
+            task_part_strain.setdefault(task, {})[part] = float(row["strain_multiplier"])
 
     artifact_id = (
         artifact_name
@@ -115,8 +159,11 @@ def train_and_save_model(
         "encoder": encoder,
         "models": models,
         "model_types": model_types,
+        "model_mse": model_mse,
         "numeric_cols": NUMERIC_COLS,
         "cat_cols": CAT_COLS,
+        "feature_medians": feature_medians,
+        "task_part_strain": task_part_strain,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     with artifact_path.open("wb") as f:
@@ -168,7 +215,16 @@ def predict_quantities(
     artifacts_dir: Path = ARTIFACTS_DIR,
 ) -> Tuple[str, Dict[str, float]]:
     artifact = load_artifact(artifact_id, artifacts_dir=artifacts_dir)
-    feature_df = pd.DataFrame([features])
+    prepared = {
+        "symptom_text": str(features.get("symptom_text") or ""),
+        "task_type": str(features.get("task_type") or "unknown"),
+        "duration_days": float(features.get("duration_days") or 0.0),
+        "age_days": float(features.get("age_days") or 0.0),
+        "avg_load_factor": float(features.get("avg_load_factor") or 0.0),
+        "environment_score": float(features.get("environment_score") or 0.0),
+        "region": str(features.get("region") or "unknown"),
+    }
+    feature_df = pd.DataFrame([prepared])
     x_pred, _, _ = _build_feature_matrix(
         feature_df,
         vectorizer=artifact["vectorizer"],
@@ -184,6 +240,48 @@ def predict_quantities(
             pred = model.predict(x_pred.toarray())[0]
         else:
             pred = model.predict(x_pred)[0]
-        result[part_id] = float(max(0.0, pred))
+        adjusted = float(max(0.0, pred)) * _calibrate_prediction(artifact, prepared, part_id)
+        result[part_id] = float(max(0.0, adjusted))
 
     return artifact["artifact_id"], result
+
+
+def _calibrate_prediction(artifact: Dict[str, object], features: Dict[str, object], part_id: str) -> float:
+    med = artifact.get("feature_medians", {}) or {}
+    task_map = artifact.get("task_part_strain", {}) or {}
+    duration_med = max(float(med.get("duration_days", 3.0)), 1.0)
+    age_med = max(float(med.get("age_days", 1200.0)), 1.0)
+    load_med = float(med.get("avg_load_factor", 0.85))
+    env_med = float(med.get("environment_score", 0.55))
+
+    duration = float(features.get("duration_days", duration_med))
+    age_days = float(features.get("age_days", age_med))
+    load = float(features.get("avg_load_factor", load_med))
+    env = float(features.get("environment_score", env_med))
+    task_type = str(features.get("task_type", ""))
+    symptom_text = str(features.get("symptom_text", "")).lower()
+
+    duration_delta = (duration - duration_med) / duration_med
+    age_delta = (age_days - age_med) / age_med
+    load_delta = load - load_med
+    env_delta = env - env_med
+
+    task_multiplier = float(task_map.get(task_type, {}).get(part_id, 1.0))
+    task_delta = task_multiplier - 1.0
+
+    symptom_boost = 0.0
+    for token in SYMPTOM_HINTS.get(part_id, []):
+        if token in symptom_text:
+            symptom_boost = 0.30
+            break
+
+    calibrated = (
+        1.0
+        + 0.45 * duration_delta
+        + 0.20 * age_delta
+        + 0.40 * load_delta
+        + 0.30 * env_delta
+        + 0.70 * task_delta
+        + symptom_boost
+    )
+    return float(np.clip(calibrated, 0.35, 3.2))
