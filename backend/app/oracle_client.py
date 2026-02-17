@@ -9,15 +9,8 @@ import pandas as pd
 
 TABLES = [
     "dealer_cases",
-    "assets",
     "parts",
-    "tasks",
-    "task_part_strain",
-    "events",
-    "failures",
-    "parts_used",
-    "trip_outcomes",
-    "inventory_snapshot",
+    "parts_ordered",
 ]
 
 
@@ -55,62 +48,19 @@ class OracleMockClient:
     def fetch_parts(self) -> List[dict]:
         return self.get_table("parts").to_dict(orient="records")
 
-    def fetch_inventory(self, region: Optional[str] = None) -> List[dict]:
-        df = self.get_table("inventory_snapshot")
-        if region:
-            df = df[df["region"] == region]
-        return df.to_dict(orient="records")
-
-    def fetch_event(self, event_id: str) -> Optional[dict]:
-        events = self.get_table("events")
-        if events.empty:
-            return None
-        event_rows = events[events["event_id"] == event_id]
-        if event_rows.empty:
-            return None
-        event = event_rows.iloc[0].to_dict()
-
-        case_row = self.get_table("dealer_cases")
-        case = case_row[case_row["case_id"] == event["case_id"]]
-        if not case.empty:
-            event["dealer_case"] = case.iloc[0].to_dict()
-
-        used = self.get_table("parts_used")
-        event["parts_used"] = used[used["event_id"] == event_id].to_dict(orient="records")
-        return event
-
-    def fetch_events(
-        self,
-        limit: Optional[int] = None,
-        region: Optional[str] = None,
-        only_demo: bool = False,
-    ) -> List[dict]:
-        events = self.get_table("events")
-        if events.empty:
-            return []
-        cases = self.get_table("dealer_cases")[["case_id", "region", "symptom_text"]]
-        joined = events.merge(cases, on="case_id", how="left")
-        if region:
-            joined = joined[joined["region"] == region]
-        if only_demo and "is_demo" in joined.columns:
-            joined = joined[joined["is_demo"] == True]  # noqa: E712
-        if limit is not None:
-            joined = joined.head(max(1, limit))
-        return joined.to_dict(orient="records")
-
     def fetch_dealer_cases(
         self,
         limit: Optional[int] = None,
-        region: Optional[str] = None,
         severity_min: Optional[int] = None,
+        tractor_model: Optional[str] = None,
     ) -> List[dict]:
         df = self.get_table("dealer_cases")
         if df.empty:
             return []
-        if region:
-            df = df[df["region"] == region]
         if severity_min is not None:
             df = df[df["severity"] >= severity_min]
+        if tractor_model:
+            df = df[df["tractor_model"] == tractor_model]
         if limit is not None:
             df = df.head(max(1, limit))
         return df.to_dict(orient="records")

@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 from typing import Dict, List, Optional
+from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
 
 class GenerateDataRequest(BaseModel):
-    n_events: int = 2000
+    n_cases: int = 2000
     seed: int = 42
-    demo_events: int = 50
+    demo_cases: int = 50
+    seed_mode: Literal["fixed", "random"] = "fixed"
 
 
 class TrainModelRequest(BaseModel):
@@ -16,99 +18,36 @@ class TrainModelRequest(BaseModel):
 
 
 class RecommendPartsRequest(BaseModel):
-    event_id: Optional[str] = None
-    symptom_text: Optional[str] = None
-    task_type: Optional[str] = None
-    duration_days: Optional[int] = None
-    age_days: Optional[int] = None
-    avg_load_factor: Optional[float] = None
-    environment_score: Optional[float] = None
-    region: Optional[str] = None
-    safety_buffer: float = 0.35
+    tractor_model: str
+    issue_description: str
+    severity: int = Field(default=3, ge=1, le=5)
+    top_k: int = Field(default=5, ge=1, le=10)
     artifact_id: Optional[str] = None
 
     @model_validator(mode="after")
     def validate_input(self) -> "RecommendPartsRequest":
-        if self.event_id:
-            return self
-        required = [
-            self.task_type,
-            self.duration_days,
-            self.age_days,
-            self.avg_load_factor,
-            self.environment_score,
-            self.region,
-        ]
-        if any(v is None for v in required):
-            raise ValueError(
-                "Provide event_id or all planning features for recommendation."
-            )
+        if not self.tractor_model.strip():
+            raise ValueError("tractor_model is required")
+        if not self.issue_description.strip():
+            raise ValueError("issue_description is required")
         return self
 
 
 class PartPrediction(BaseModel):
     part_id: str
-    expected_qty: float
+    score: float
     recommended_qty: int
 
 
 class RecommendPartsResponse(BaseModel):
     artifact_id: str
     recommendations: List[PartPrediction]
-    features: Dict[str, object]
+    input_features: Dict[str, object]
+    explanation: Dict[str, object]
 
 
-class SimulateRequest(BaseModel):
-    event_id: Optional[str] = None
-    symptom_text: Optional[str] = None
-    task_type: Optional[str] = None
-    duration_days: Optional[int] = None
-    age_days: Optional[int] = None
-    avg_load_factor: Optional[float] = None
-    environment_score: Optional[float] = None
-    region: Optional[str] = None
-    safety_buffer: float = 0.35
-    w1_money: float = 1.0
-    w2_downtime: float = 40.0
-    w3_satisfaction: float = 1.0
-    shipping_delay_hours: float = 12.0
-    artifact_id: Optional[str] = None
-
-    @model_validator(mode="after")
-    def validate_input(self) -> "SimulateRequest":
-        if self.event_id:
-            return self
-        required = [
-            self.task_type,
-            self.duration_days,
-            self.age_days,
-            self.avg_load_factor,
-            self.environment_score,
-            self.region,
-        ]
-        if any(v is None for v in required):
-            raise ValueError("Provide event_id or all planning features for simulation.")
-        return self
-
-
-class ScenarioKPI(BaseModel):
-    scenario: str
-    money_cost: float
-    downtime_hours: float
-    satisfaction_penalty: float
-    combined_loss: float
-    stockout_parts: int = Field(default=0)
-
-
-class SimulateResponse(BaseModel):
+class ModelInsightsResponse(BaseModel):
     artifact_id: str
-    recommendations: List[PartPrediction]
-    actual_used_qty: Dict[str, int]
-    scenarios: List[ScenarioKPI]
-
-
-class ExecSummaryResponse(BaseModel):
-    events_evaluated: int
-    baseline: Dict[str, float]
-    recommended: Dict[str, float]
-    delta_vs_baseline: Dict[str, float]
+    n_cases: int
+    part_metrics: Dict[str, Dict[str, float | str]]
+    global_feature_importance: List[Dict[str, object]]

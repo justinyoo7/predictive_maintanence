@@ -1,23 +1,22 @@
 from __future__ import annotations
 
+import random
+
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.modeling import build_features_from_event, predict_quantities, train_and_save_model
+from app.modeling import get_model_insights, predict_parts, train_and_save_model
 from app.oracle_client import oracle_client
 from app.schemas import (
-    ExecSummaryResponse,
     GenerateDataRequest,
+    ModelInsightsResponse,
     RecommendPartsRequest,
     RecommendPartsResponse,
-    SimulateRequest,
-    SimulateResponse,
     TrainModelRequest,
 )
-from app.simulation import compute_exec_summary, recommend_spares, run_simulation
 from scripts.generate_data import GenerationConfig, generate_tables, write_tables
 
-app = FastAPI(title="Predictive Parts Recommendation API", version="0.1.0")
+app = FastAPI(title="Kubota Dealer Diagnosis API", version="0.2.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -34,10 +33,13 @@ def health() -> dict:
 
 @app.post("/generate-demo-data")
 def generate_demo_data(request: GenerateDataRequest) -> dict:
+    seed = request.seed
+    if request.seed_mode == "random":
+        seed = random.randint(1, 1_000_000)
     config = GenerationConfig(
-        n_events=request.n_events,
-        seed=request.seed,
-        demo_events=request.demo_events,
+        n_cases=request.n_cases,
+        seed=seed,
+        demo_cases=request.demo_cases,
         output_dir=oracle_client.data_dir,
     )
     tables = generate_tables(config)
@@ -46,6 +48,7 @@ def generate_demo_data(request: GenerateDataRequest) -> dict:
     return {
         "status": "generated",
         "output_dir": str(config.output_dir),
+        "seed_used": seed,
         "table_counts": {name: len(df) for name, df in tables.items()},
     }
 
@@ -57,87 +60,44 @@ def train_model(request: TrainModelRequest) -> dict:
     return {"status": "trained", **result}
 
 
-def _extract_features(payload: RecommendPartsRequest) -> dict:
-    if payload.event_id:
-        return build_features_from_event(oracle_client, payload.event_id)
-    return {
-        "symptom_text": payload.symptom_text,
-        "task_type": payload.task_type,
-        "duration_days": payload.duration_days,
-        "age_days": payload.age_days,
-        "avg_load_factor": payload.avg_load_factor,
-        "environment_score": payload.environment_score,
-        "region": payload.region,
-    }
-
-
 @app.post("/recommend-parts", response_model=RecommendPartsResponse)
 def recommend_parts(payload: RecommendPartsRequest) -> RecommendPartsResponse:
     try:
-        features = _extract_features(payload)
-        artifact_id, expected = predict_quantities(
+        features = {
+            "tractor_model": payload.tractor_model,
+            "issue_description": payload.issue_description,
+            "severity": payload.severity,
+        }
+        artifact_id, expected, explanation = predict_parts(
             features, artifact_id=payload.artifact_id
         )
-        recommended = recommend_spares(expected, safety_buffer=payload.safety_buffer)
     except Exception as exc:  # pragma: no cover - API boundary
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
+    top_items = sorted(expected.items(), key=lambda x: x[1], reverse=True)[: payload.top_k]
     rows = [
         {
             "part_id": part_id,
-            "expected_qty": round(qty, 4),
-            "recommended_qty": recommended[part_id],
+            "score": round(qty, 4),
+            "recommended_qty": int(round(max(0.0, qty))),
         }
-        for part_id, qty in expected.items()
+        for part_id, qty in top_items
     ]
     return RecommendPartsResponse(
         artifact_id=artifact_id,
         recommendations=rows,
-        features=features,
+        input_features=features,
+        explanation=explanation,
     )
 
 
-@app.post("/simulate", response_model=SimulateResponse)
-def simulate(payload: SimulateRequest) -> SimulateResponse:
+@app.get("/model-insights", response_model=ModelInsightsResponse)
+def model_insights(artifact_id: str | None = None) -> ModelInsightsResponse:
     try:
-        request_features = payload.model_dump(exclude_none=True)
-        result = run_simulation(
-            oracle_client,
-            request_features=request_features,
-            safety_buffer=payload.safety_buffer,
-            w1_money=payload.w1_money,
-            w2_downtime=payload.w2_downtime,
-            w3_satisfaction=payload.w3_satisfaction,
-            shipping_delay_hours=payload.shipping_delay_hours,
-            artifact_id=payload.artifact_id,
-        )
-    except Exception as exc:  # pragma: no cover - API boundary
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return SimulateResponse(**result)
-
-
-@app.get("/exec-summary", response_model=ExecSummaryResponse)
-def exec_summary(
-    safety_buffer: float = 0.35,
-    w1_money: float = 1.0,
-    w2_downtime: float = 40.0,
-    w3_satisfaction: float = 1.0,
-    shipping_delay_hours: float = 12.0,
-    artifact_id: str | None = None,
-) -> ExecSummaryResponse:
-    try:
-        result = compute_exec_summary(
-            oracle_client,
-            safety_buffer=safety_buffer,
-            w1_money=w1_money,
-            w2_downtime=w2_downtime,
-            w3_satisfaction=w3_satisfaction,
-            shipping_delay_hours=shipping_delay_hours,
-            artifact_id=artifact_id,
-        )
+        result = get_model_insights(artifact_id=artifact_id)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return ExecSummaryResponse(**result)
+    return ModelInsightsResponse(**result)
 
 
 @app.get("/oracle/tables")
