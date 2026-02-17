@@ -142,11 +142,27 @@ def train_and_save_model(
         }
 
     feature_names = _feature_names(vectorizer, encoder, NUMERIC_COLS)
+    selected_model_breakdown = {
+        "poisson": int(sum(1 for m in model_types.values() if m == "poisson")),
+        "gbr": int(sum(1 for m in model_types.values() if m == "gbr")),
+    }
     global_importance = _compute_global_importance(
         models=models,
         model_types=model_types,
         feature_names=feature_names,
         text_feature_count=len(vectorizer.get_feature_names_out()),
+    )
+    per_part_feature_importance = _compute_per_part_feature_importance(
+        models=models,
+        model_types=model_types,
+        feature_names=feature_names,
+    )
+    data_visibility = _build_data_visibility(frame=frame, part_ids=part_ids)
+    model_math = _build_model_math_summary(
+        model_types=model_types,
+        selected_model_breakdown=selected_model_breakdown,
+        split_idx=split_idx,
+        n_rows=len(frame),
     )
 
     artifact_id = (
@@ -167,8 +183,13 @@ def train_and_save_model(
         "cat_cols": CAT_COLS,
         "text_col": TEXT_COL,
         "global_feature_importance": global_importance,
+        "per_part_feature_importance": per_part_feature_importance,
+        "selected_model_breakdown": selected_model_breakdown,
+        "data_visibility": data_visibility,
+        "model_math": model_math,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "n_cases": int(len(frame)),
+        "vocab_size": int(len(vectorizer.get_feature_names_out())),
     }
     with artifact_path.open("wb") as f:
         pickle.dump(payload, f)
@@ -181,6 +202,8 @@ def train_and_save_model(
         "n_rows": len(frame),
         "part_metrics": model_rmse,
         "global_feature_importance": global_importance,
+        "selected_model_breakdown": selected_model_breakdown,
+        "vocab_size": int(len(vectorizer.get_feature_names_out())),
     }
 
 
@@ -242,6 +265,12 @@ def predict_parts(
     explanation = {
         "top_terms_by_part": token_contribs,
         "global_feature_importance": artifact.get("global_feature_importance", []),
+        "reasoning_summary": [
+            "Vectorize issue text with TF-IDF (1-2 grams).",
+            "Encode tractor model and include severity as numeric signal.",
+            "Score each part with selected model (Poisson or Gradient Boosting).",
+            "Rank parts by predicted score and return top-k.",
+        ],
     }
     return artifact["artifact_id"], result, explanation
 
@@ -254,8 +283,13 @@ def get_model_insights(
     return {
         "artifact_id": artifact["artifact_id"],
         "n_cases": int(artifact.get("n_cases", 0)),
+        "vocab_size": int(artifact.get("vocab_size", 0)),
         "part_metrics": artifact.get("model_rmse", {}),
+        "selected_model_breakdown": artifact.get("selected_model_breakdown", {}),
         "global_feature_importance": artifact.get("global_feature_importance", []),
+        "per_part_feature_importance": artifact.get("per_part_feature_importance", {}),
+        "data_visibility": artifact.get("data_visibility", {}),
+        "model_math": artifact.get("model_math", {}),
     }
 
 
@@ -307,6 +341,86 @@ def _compute_global_importance(
             }
         )
     return rows
+
+
+def _compute_per_part_feature_importance(
+    models: Dict[str, object],
+    model_types: Dict[str, str],
+    feature_names: List[str],
+) -> Dict[str, List[Dict[str, object]]]:
+    result: Dict[str, List[Dict[str, object]]] = {}
+    for part_id, model in models.items():
+        model_type = model_types.get(part_id, "")
+        if model_type == "poisson" and hasattr(model, "coef_"):
+            importances = np.abs(np.asarray(model.coef_))
+        elif model_type == "gbr" and hasattr(model, "feature_importances_"):
+            importances = np.asarray(model.feature_importances_)
+        else:
+            result[part_id] = []
+            continue
+        if importances.shape[0] != len(feature_names):
+            result[part_id] = []
+            continue
+        top_idx = np.argsort(importances)[::-1][:8]
+        rows: List[Dict[str, object]] = []
+        for idx in top_idx:
+            val = float(importances[idx])
+            if val <= 0:
+                continue
+            rows.append({"feature": feature_names[idx], "importance": round(val, 6)})
+        result[part_id] = rows
+    return result
+
+
+def _build_data_visibility(frame: pd.DataFrame, part_ids: List[str]) -> Dict[str, object]:
+    model_counts = (
+        frame["tractor_model"].fillna("unknown").astype(str).value_counts().to_dict()
+        if "tractor_model" in frame.columns
+        else {}
+    )
+    severity_counts = (
+        frame["severity"].fillna(0).astype(int).value_counts().sort_index().to_dict()
+        if "severity" in frame.columns
+        else {}
+    )
+    issue_lengths = frame[TEXT_COL].fillna("").astype(str).str.len() if TEXT_COL in frame.columns else pd.Series(dtype=int)
+    part_stats: Dict[str, Dict[str, float]] = {}
+    n_cases = max(1, len(frame))
+    for part_id in part_ids:
+        qty = frame[part_id].astype(float).values if part_id in frame.columns else np.zeros(n_cases)
+        part_stats[part_id] = {
+            "avg_ordered_qty": round(float(np.mean(qty)), 4),
+            "pct_cases_with_order": round(float(np.mean(qty > 0) * 100.0), 2),
+        }
+    return {
+        "model_distribution": {k: int(v) for k, v in model_counts.items()},
+        "severity_distribution": {str(k): int(v) for k, v in severity_counts.items()},
+        "issue_text_length": {
+            "mean_chars": round(float(issue_lengths.mean() if not issue_lengths.empty else 0.0), 2),
+            "p90_chars": round(float(issue_lengths.quantile(0.9) if not issue_lengths.empty else 0.0), 2),
+        },
+        "part_order_profile": part_stats,
+    }
+
+
+def _build_model_math_summary(
+    model_types: Dict[str, str],
+    selected_model_breakdown: Dict[str, int],
+    split_idx: int,
+    n_rows: int,
+) -> Dict[str, object]:
+    eval_rows = max(1, n_rows - split_idx)
+    return {
+        "train_eval_split": {"train_rows": int(split_idx), "eval_rows": int(eval_rows)},
+        "selection_rule": "Choose Poisson when poisson_rmse <= 0.98 * gbr_rmse, else choose GBR.",
+        "loss_metric": "RMSE on holdout split per part",
+        "selected_models": selected_model_breakdown,
+        "equations": {
+            "poisson": "y_hat = exp(beta0 + sum(beta_i * x_i))",
+            "gbr": "y_hat = sum_t eta * tree_t(x)",
+        },
+        "part_model_map": model_types,
+    }
 
 
 def _text_contributions_for_part(

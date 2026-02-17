@@ -49,5 +49,10 @@ class RecommendPartsResponse(BaseModel):
 class ModelInsightsResponse(BaseModel):
     artifact_id: str
     n_cases: int
+    vocab_size: int
     part_metrics: Dict[str, Dict[str, float | str]]
+    selected_model_breakdown: Dict[str, int]
     global_feature_importance: List[Dict[str, object]]
+    per_part_feature_importance: Dict[str, List[Dict[str, object]]]
+    data_visibility: Dict[str, object]
+    model_math: Dict[str, object]
