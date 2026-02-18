@@ -16,6 +16,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import PoissonRegressor
 from sklearn.metrics import mean_squared_error
+from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import OneHotEncoder
 
 from app.oracle_client import OracleMockClient
@@ -27,6 +28,12 @@ LATEST_POINTER = ARTIFACTS_DIR / "latest_artifact.json"
 NUMERIC_COLS = ["severity"]
 CAT_COLS = ["tractor_model"]
 TEXT_COL = "issue_description"
+SEMANTIC_RERANK_ALPHA = 0.35
+SEMANTIC_RERANK_CAP = 1.35
+SEMANTIC_MIN_TEXT_LEN = 6
+SEMANTIC_MIN_MATCH_SCORE = 0.02
+SEMANTIC_MATCH_TOP_K = 6
+_PARTS_RETRIEVER_CACHE: Dict[tuple, Dict[str, object]] = {}
 
 
 def _prepare_training_frame(client: OracleMockClient) -> pd.DataFrame:
@@ -228,14 +235,22 @@ def load_artifact(artifact_id: Optional[str] = None, artifacts_dir: Path = ARTIF
 
 def predict_parts(
     features: Dict[str, object],
+    client: Optional[OracleMockClient] = None,
     artifact_id: Optional[str] = None,
     artifacts_dir: Path = ARTIFACTS_DIR,
 ) -> Tuple[str, Dict[str, float], Dict[str, object]]:
     artifact = load_artifact(artifact_id, artifacts_dir=artifacts_dir)
+    parts_catalog = client.fetch_parts() if client is not None else []
     prepared = {
         "issue_description": str(features.get("issue_description") or ""),
         "tractor_model": str(features.get("tractor_model") or "unknown"),
         "severity": float(features.get("severity") or 3.0),
+    }
+    prior_parts_raw = features.get("past_parts_ordered") or []
+    prior_parts = {
+        _normalize_part_id(str(p))
+        for p in prior_parts_raw
+        if str(p).strip()
     }
     feature_df = pd.DataFrame([prepared])
     x_pred, _, _ = _build_feature_matrix(
@@ -246,6 +261,17 @@ def predict_parts(
     )
 
     x_pred_dense = x_pred.toarray()
+    semantic_scores_by_part: Dict[str, float] = {}
+    semantic_matches: List[Dict[str, object]] = []
+    semantic_eligible = len(prepared["issue_description"].strip()) >= SEMANTIC_MIN_TEXT_LEN
+    if semantic_eligible:
+        semantic_matches, semantic_scores_by_part = _parts_db_matches(
+            issue_description=prepared["issue_description"],
+            parts_catalog=parts_catalog,
+            top_k=SEMANTIC_MATCH_TOP_K,
+        )
+
+    semantic_rerank_applied = bool(semantic_scores_by_part)
     result: Dict[str, float] = {}
     token_contribs: Dict[str, List[Dict[str, float | str]]] = {}
     for part_id in artifact["part_ids"]:
@@ -255,7 +281,14 @@ def predict_parts(
             pred = model.predict(x_pred_dense)[0]
         else:
             pred = model.predict(x_pred)[0]
-        result[part_id] = float(max(0.0, pred))
+        adjusted_pred = float(max(0.0, pred))
+        semantic_score = float(semantic_scores_by_part.get(part_id, 0.0))
+        if semantic_rerank_applied and semantic_score > 0:
+            multiplier = min(SEMANTIC_RERANK_CAP, 1.0 + (SEMANTIC_RERANK_ALPHA * semantic_score))
+            adjusted_pred *= multiplier
+        if part_id in prior_parts:
+            adjusted_pred *= 1.20
+        result[part_id] = adjusted_pred
         token_contribs[part_id] = _text_contributions_for_part(
             part_id=part_id,
             artifact=artifact,
@@ -269,8 +302,16 @@ def predict_parts(
             "Vectorize issue text with TF-IDF (1-2 grams).",
             "Encode tractor model and include severity as numeric signal.",
             "Score each part with selected model (Poisson or Gradient Boosting).",
+            "Match issue text to parts catalog via TF-IDF similarity and re-rank with bounded boost.",
             "Rank parts by predicted score and return top-k.",
         ],
+        "parts_db_matches": semantic_matches,
+        "rerank_applied": semantic_rerank_applied,
+        "rerank_alpha": SEMANTIC_RERANK_ALPHA,
+        "semantic_scores_by_part": {
+            k: round(float(v), 6) for k, v in sorted(semantic_scores_by_part.items())
+        },
+        "past_parts_ordered_used": sorted(prior_parts),
     }
     return artifact["artifact_id"], result, explanation
 
@@ -451,3 +492,134 @@ def _text_contributions_for_part(
             continue
         rows.append({"term": str(text_features[idx]), "contribution": round(val, 6)})
     return rows
+
+
+def _parts_db_matches(
+    issue_description: str,
+    parts_catalog: List[dict],
+    top_k: int = SEMANTIC_MATCH_TOP_K,
+) -> Tuple[List[Dict[str, object]], Dict[str, float]]:
+    text = issue_description.strip()
+    if not text or len(text) < SEMANTIC_MIN_TEXT_LEN or not parts_catalog:
+        return [], {}
+
+    retriever = _build_parts_retriever(parts_catalog)
+    vectorizer: TfidfVectorizer = retriever["vectorizer"]  # type: ignore[assignment]
+    part_matrix: csr_matrix = retriever["part_matrix"]  # type: ignore[assignment]
+    part_rows: List[dict] = retriever["part_rows"]  # type: ignore[assignment]
+    query_vec = vectorizer.transform([text])
+    sims = cosine_similarity(query_vec, part_matrix)[0]
+    top_idx = np.argsort(sims)[::-1][: max(1, top_k)]
+
+    matches: List[Dict[str, object]] = []
+    score_map: Dict[str, float] = {}
+    for idx in top_idx:
+        score = float(sims[idx])
+        if score < SEMANTIC_MIN_MATCH_SCORE:
+            continue
+        row = part_rows[int(idx)]
+        part_id = _normalize_part_id(str(row.get("part_id", "")))
+        if not part_id:
+            continue
+        matched_terms = _matched_terms(query_vec=query_vec, part_vec=part_matrix[idx], vectorizer=vectorizer)
+        sku = str(row.get("sku", "")).strip() or f"KBT-{part_id.upper()}-001"
+        part_name = str(row.get("part_name", part_id))
+        matches.append(
+            {
+                "part_id": part_id,
+                "sku": sku,
+                "part_name": part_name,
+                "match_score": round(score, 4),
+                "matched_terms": matched_terms,
+                "match_reason": (
+                    f"Semantic text match ({', '.join(matched_terms)})"
+                    if matched_terms
+                    else "Semantic text match with parts catalog"
+                ),
+            }
+        )
+        score_map[part_id] = max(float(score_map.get(part_id, 0.0)), score)
+    return matches, score_map
+
+
+def _build_parts_retriever(parts_catalog: List[dict]) -> Dict[str, object]:
+    signature = _parts_catalog_signature(parts_catalog)
+    cached = _PARTS_RETRIEVER_CACHE.get(signature)
+    if cached is not None:
+        return cached
+
+    part_rows: List[dict] = []
+    docs: List[str] = []
+    for row in parts_catalog:
+        part_id = _normalize_part_id(str(row.get("part_id", "")))
+        if not part_id:
+            continue
+        part_rows.append(row)
+        docs.append(_part_text_document(row))
+
+    if not docs:
+        raise RuntimeError("Parts catalog is empty or invalid for semantic matching.")
+
+    vectorizer = TfidfVectorizer(ngram_range=(1, 2), min_df=1)
+    part_matrix = vectorizer.fit_transform(docs)
+    payload = {
+        "vectorizer": vectorizer,
+        "part_matrix": part_matrix,
+        "part_rows": part_rows,
+    }
+    _PARTS_RETRIEVER_CACHE[signature] = payload
+    return payload
+
+
+def _parts_catalog_signature(parts_catalog: List[dict]) -> tuple:
+    stable_rows = []
+    for row in parts_catalog:
+        stable_rows.append(
+            (
+                str(row.get("part_id", "")).strip().lower(),
+                str(row.get("part_name", "")).strip().lower(),
+                str(row.get("category", "")).strip().lower(),
+                str(row.get("alias_terms", "")).strip().lower(),
+                str(row.get("part_description", "")).strip().lower(),
+                str(row.get("sku", "")).strip().upper(),
+            )
+        )
+    return tuple(sorted(stable_rows))
+
+
+def _part_text_document(row: dict) -> str:
+    part_id = str(row.get("part_id", "")).strip()
+    part_name = str(row.get("part_name", "")).strip()
+    category = str(row.get("category", "")).strip()
+    description = str(row.get("part_description", "")).strip()
+    aliases_raw = str(row.get("alias_terms", "")).strip()
+    aliases = " ".join(a.strip() for a in aliases_raw.split(",") if a.strip())
+    return " ".join([part_id, part_name, category, description, aliases]).strip().lower()
+
+
+def _matched_terms(
+    query_vec: csr_matrix,
+    part_vec: csr_matrix,
+    vectorizer: TfidfVectorizer,
+    top_n: int = 4,
+) -> List[str]:
+    query_dense = np.asarray(query_vec.toarray()[0])
+    part_dense = np.asarray(part_vec.toarray()[0])
+    overlap = query_dense * part_dense
+    top_idx = np.argsort(overlap)[::-1][: max(1, top_n)]
+    features = vectorizer.get_feature_names_out()
+    terms: List[str] = []
+    for idx in top_idx:
+        if float(overlap[idx]) <= 0:
+            continue
+        terms.append(str(features[int(idx)]))
+    return terms
+
+
+def _normalize_part_id(value: str) -> str:
+    v = value.strip().lower()
+    if not v:
+        return v
+    if v.startswith("kbt-") and v.endswith("-001"):
+        v = v[4:-4]
+    return v

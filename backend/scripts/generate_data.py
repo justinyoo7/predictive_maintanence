@@ -17,6 +17,9 @@ PARTS = [
     {
         "part_id": "wheel",
         "part_name": "Wheel Assembly",
+        "part_description": "Front/rear wheel housing, rim, hub, and axle-side mounting assembly.",
+        "alias_terms": "wheel housing,left wheel,right wheel,tire,rim,hub,axle",
+        "sku": "KBT-WHEEL-001",
         "unit_cost": 320.0,
         "category": "running_gear",
         "base_failure_signal": 0.95,
@@ -24,6 +27,9 @@ PARTS = [
     {
         "part_id": "body",
         "part_name": "Body Frame",
+        "part_description": "Main chassis and structural body frame with mount and support points.",
+        "alias_terms": "body frame,chassis,frame,mount,alignment,housing,support",
+        "sku": "KBT-BODY-001",
         "unit_cost": 1800.0,
         "category": "structure",
         "base_failure_signal": 0.45,
@@ -31,6 +37,9 @@ PARTS = [
     {
         "part_id": "windshield",
         "part_name": "Windshield Panel",
+        "part_description": "Front cabin windshield glass panel and related visibility area components.",
+        "alias_terms": "front glass,windshield,wiper,visibility,crack,chip,cabin glass",
+        "sku": "KBT-WINDSHIELD-001",
         "unit_cost": 240.0,
         "category": "cabin",
         "base_failure_signal": 0.65,
@@ -38,6 +47,9 @@ PARTS = [
     {
         "part_id": "engine",
         "part_name": "Engine Core",
+        "part_description": "Engine core powertrain assembly including combustion, ignition, and torque systems.",
+        "alias_terms": "engine core,misfire,stall,smoke,power loss,knocking,ignition",
+        "sku": "KBT-ENGINE-001",
         "unit_cost": 5200.0,
         "category": "powertrain",
         "base_failure_signal": 0.75,

@@ -22,6 +22,7 @@ class RecommendPartsRequest(BaseModel):
     issue_description: str
     severity: int = Field(default=3, ge=1, le=5)
     top_k: int = Field(default=5, ge=1, le=10)
+    past_parts_ordered: List[str] = Field(default_factory=list)
     artifact_id: Optional[str] = None
 
     @model_validator(mode="after")
@@ -36,6 +37,7 @@ class RecommendPartsRequest(BaseModel):
 class PartPrediction(BaseModel):
     part_id: str
     score: float
+    confidence_pct: float
     recommended_qty: int
 
 

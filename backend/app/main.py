@@ -67,18 +67,21 @@ def recommend_parts(payload: RecommendPartsRequest) -> RecommendPartsResponse:
             "tractor_model": payload.tractor_model,
             "issue_description": payload.issue_description,
             "severity": payload.severity,
+            "past_parts_ordered": payload.past_parts_ordered,
         }
         artifact_id, expected, explanation = predict_parts(
-            features, artifact_id=payload.artifact_id
+            features, client=oracle_client, artifact_id=payload.artifact_id
         )
     except Exception as exc:  # pragma: no cover - API boundary
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     top_items = sorted(expected.items(), key=lambda x: x[1], reverse=True)[: payload.top_k]
+    denom = max(1e-9, sum(max(0.0, qty) for _, qty in top_items))
     rows = [
         {
             "part_id": part_id,
             "score": round(qty, 4),
+            "confidence_pct": round((max(0.0, qty) / denom) * 100.0, 2),
             "recommended_qty": int(round(max(0.0, qty))),
         }
         for part_id, qty in top_items
